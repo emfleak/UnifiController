@@ -21,19 +21,17 @@ class Device:
     def display(self):
         print(str(self.num) + ' --')
         for prop in self.props:
-            if prop in ['name', 'mac', 'type', 'model', 'version', 'ip',  'uplink', 'uptime']:
+            if prop in ['name', 'mac', 'type', 'model', 'version', 'ip',  'uplink', 'uptime', 'model']:
                 if prop in ['uplink']:
                     try:
-                        print('\tUplink: port #' + str(self.props[prop]['port_idx']) + ' to ' + self.props[prop]['uplink_device_name'] + ' [' + self.props[prop]['uplink_mac'] + '] on port #' + str(self.props[prop]['uplink_remote_port']))
+                        print('\tuplink: port #' + str(self.props[prop]['port_idx']) + ' to ' + self.props[prop]['uplink_device_name'] + ' [' + self.props[prop]['uplink_mac'] + '] on port #' + str(self.props[prop]['uplink_remote_port']))
                     except:
-                        print('\tUplink: port #' + str(self.props[prop]['port_idx']) + ' (not uplinked to a unifi device)')
-                    else:
-                        print('\tUplink: port #' + str(self.props[prop]['ap_mac']) + ' (not uplinked to a unifi device)')
+                        print('\tuplink: port #' + str(self.props[prop]['port_idx']) + ' (not uplinked to a unifi device)')
                 else:
                     print('\t' + str(prop) + ': ' + str(self.props[prop]))
 
     def display_short(self):
-        print(str(self.num) + ' --\tName: ' + self.name + '\n\tMac: ' + self.mac + '\n\tType: ' + self.type.upper() + '\n\tModel: ' + self.model)
+        print(str(self.num) + ' --\tName: ' + self.name + '\n\tMac: ' + self.mac + '\n\tType: ' + self.type.upper() + '\n\tModel: ' + self.props['model'])
 
     def get_site_id(self):
         return self.site.site_id
@@ -43,3 +41,12 @@ class Device:
             return False
         else:
             return True
+
+    def get_prop(self, prop):
+        if self.props.__contains__('uplink'):
+            try:
+                return 'port #' + str(self.props[prop]['port_idx']) + ' to ' + self.props[prop]['uplink_device_name'] + ' [' + self.props[prop]['uplink_mac'] + '] on port #' + str(self.props[prop]['uplink_remote_port'])
+            except:
+                return 'port #' + str(self.props[prop]['port_idx']) + ' (not uplinked to a unifi device)'
+        else:
+            return str(prop) + ': ' + str(self.props[prop])

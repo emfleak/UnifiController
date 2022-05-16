@@ -25,7 +25,6 @@ class Site:
         for device in devices:
             props = {}
             for prop in device:
-                print(prop)
                 props.update({prop:device[prop]})
             try:
                 self.devices.append(Device(device['mac'], device['type'], name=device['name'], site=self, num=num, props=props))
@@ -64,6 +63,7 @@ class Site:
     def print_devices(self):
         for device in self.devices:
             device.display_short()
+            print()
 
     def search_device(self, mac):
         for device in self.devices:

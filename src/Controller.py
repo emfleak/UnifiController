@@ -2,7 +2,7 @@ from Site import Site
 
 class Controller:
 
-    def __init__(self, host, api_user, api_key, port=8443):
+    def __init__(self, host, api_user, api_key, ssh_user='', ssh_pass='',port=8443):
         self.host = host
         self.port = port
         self.api_user = api_user

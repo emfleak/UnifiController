@@ -2,14 +2,29 @@ from Controller import Controller
 from UnifiAPI import UnifiAPI
 import requests
 import json
+import time
+import ast
+try:
+    import paramiko
+except:
+    print('[WARNING] - paramiko not loaded, only api functionality will be available.')
 
 class Unifi:
 
-    def __init__(self, host='', api_user='', api_key='', port=8443):
+    def __init__(self, host='', api_user='', api_key='', ssh_user='', ssh_pass='',port=8443):
         self.controller = Controller(host, api_user, api_key, port)
         self.session = requests.Session()
         self._active_site = None
         self._active_device = None
+        try:
+            self.ssh = paramiko.SSHClient()
+            self.ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+            self.ssh.connect(host, username=ssh_user, key_filename=ssh_pass)
+            self.base_cmd = '''mongo --port 27117 ace --eval '''
+        except:
+            print("SSH Connection Failed")
+        self.ssh_user = ssh_user
+        self.ssh_pass = ssh_pass
 
     @property
     def active_site(self):
@@ -91,17 +106,17 @@ class Unifi:
         CALLS TO LOGIN/LOGOUT
     '''
     def login(self):
-        print('Trying login...')
+        print('Logging in...')
         login_response = UnifiAPI(self, 'login', json_dict={'username':self.controller.api_user,'password':self.controller.api_key})()
-        if login_response == 'api.err.Invalid':
+        if login_response != []:
             print('Login unsuccessful. Please try again')
             print(login_response)
 
 
     def logout(self):
-        print('Called Logout')
+        print('Logging out...')
         logout_response = UnifiAPI(self, 'logout', json_dict={'doesnt matter':'garbage'})()
-        print(logout_response)
+
 
 
     '''
@@ -187,3 +202,52 @@ class Unifi:
             "cmd":"unset-locate"
             }
         UnifiAPI(self, endpoint, json_dict=json_dict)()
+
+    # START SSH METHODS
+    def find_site_by_mac(self, mac):
+
+        # Setup command. Custom mongo command string that searches the Unifi Controller's 'ace' db by device MAC and returns the siteID
+        command_part1 = '''"printjson(db.device.findOne({'mac':\'''' + mac
+        command_part2 = ''''},{_id:0,site_id:1,name:1}))"'''
+        command = self.base_cmd + command_part1 + command_part2
+
+        # Send/Execute command and get siteID:
+        stdin_, stdout_, stderr_ = self.ssh.exec_command(command)
+        print("Gathering site information...")
+        time.sleep(1)
+        output = str(stdout_.read()).split('\\n')
+
+        # Checks output of initial search for the MAC address. If controller returns null, then nothing was found.
+        if str(output[2]) == "null":
+            print("Device not found")
+            wait()
+            return 1
+        try:
+            k = ast.literal_eval(output[2]) #converts db query result into a literal python dictionary type
+            site_id = k['site_id']
+        except:
+            print("Controller returned something unexpected. Please submit a bug report.")
+            print(output)
+
+
+        # Setup command to get Site Name from siteId
+        command = '''mongo --port 27117 ace --eval "db.site.find({_id:ObjectId(\'''' + site_id + '''\')},{_id:0,desc:1}).forEach(printjson)" | grep desc '''
+
+        # Send command to return Unifi Site Name
+        stdin_, stdout_, stderr_ = self.ssh.exec_command(command)
+        # Wait for command to complete
+        time.sleep(1)
+
+        output = str(stdout_.read()).split('"')
+        site_name = output[3]
+        looking = 1
+        for site in self.controller.sites:
+            if site_name == site.name:
+                self._active_site = site
+                self.get_devices()
+                for device in self._active_site.devices:
+                    if mac == device.mac:
+                        self._active_device = device
+                looking = 0
+        if looking:
+            print("Device was not found.")

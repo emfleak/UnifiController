@@ -106,8 +106,6 @@ def main():
             elif command[1] == 'selections':
                 ''' SHOW SITE & DEVICE SELECTIONS '''
                 print_selections(ui)
-                print(ui.active_site)
-                print(ui.active_device)
 
             else:
                 wrong()
