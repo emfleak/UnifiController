@@ -130,6 +130,11 @@ class Unifi:
         controller_info = UnifiAPI(self, 'self')()
         print(json.dumps(controller_info, indent=4))
 
+    def get_device_info(self):
+        ''' Gets additional properties about active_device '''
+        props = UnifiAPI(self, )
+        pass
+
     def get_topology(self):
         print('Getting {site} topology: '.format(site=self._active_site.name))
         topology = UnifiAPI(self, '/v2/api/site/{site}/topology'.format(site=self._active_site.short_name)).v2_call()

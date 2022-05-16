@@ -23,10 +23,14 @@ class Site:
             print ('Already Got Devices, skipping')
             return
         for device in devices:
+            props = {}
+            for prop in device:
+                print(prop)
+                props.update({prop:device[prop]})
             try:
-                self.devices.append(Device(device['mac'], device['type'], name=device['name'], site=self, num=num))
+                self.devices.append(Device(device['mac'], device['type'], name=device['name'], site=self, num=num, props=props))
             except:
-                self.devices.append(Device(device['mac'], device['type'], site=self, num=num))
+                self.devices.append(Device(device['mac'], device['type'], site=self, num=num, props=props))
             num+=1
 
     @property
@@ -52,11 +56,16 @@ class Site:
             return
         for device in devices:
             try:
-                self.devices.append(Device(device['mac'], device['type'], name=device['name'], site=self, num=num))
+                self.devices.append(Device(device['mac'], device['type'], name=device['name'], model=device['model'], site=self, num=num))
             except:
                 self.devices.append(Device(device['mac'], device['type'], site=self, num=num))
             num+=1
 
     def print_devices(self):
         for device in self.devices:
-            device.display()
+            device.display_short()
+
+    def search_device(self, mac):
+        for device in self.devices:
+            if mac == device.mac:
+                return device.name

@@ -56,6 +56,9 @@ def main():
         elif option == 7:
             ui.get_wifi()
             wait()
+        elif option == 8:
+            ui._active_device.display()
+            wait()
         elif option == 0:
             ui.logout()
             exit()

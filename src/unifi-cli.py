@@ -49,9 +49,11 @@ def no_site():
 
 def main():
     host = 'unifi.biztec.us'
-    print('login --')
-    user = input('\tUsername: ')
-    pwd = getpass('\tPassword: ')
+    # print('login --')
+    # user = input('\tUsername: ')
+    # pwd = getpass('\tPassword: ')
+    user = 'api_user'
+    pwd = 'Emerson123!'
     ui = Unifi(host, user, pwd)
     ui.login()
     try:
@@ -70,13 +72,13 @@ def main():
         if command[0] == '':
             continue
 
-        if command[0] == 'login':
-            host = 'unifi.biztec.us'
-            #host = input('hostname: ')
-            user = input('username: ')
-            pwd = getpass()
-            ui = Unifi(host, user, pwd)
-            ui.get_sites()
+        # if command[0] == 'login':
+        #     host = 'unifi.biztec.us'
+        #     #host = input('hostname: ')
+        #     user = input('username: ')
+        #     pwd = getpass()
+        #     ui = Unifi(host, user, pwd)
+        #     ui.get_sites()
 
         elif command[0] == 'show':
             ''' SHOW DIRECTIVE '''
