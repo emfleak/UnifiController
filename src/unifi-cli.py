@@ -1,5 +1,6 @@
 from Unifi import Unifi
 import os
+from getpass import getpass
 
 commands = ['show','select','get','set','quit','help']
 show_commands = ['sites','devices','site','device','selections']
@@ -39,17 +40,28 @@ def wait():
 def wrong():
     print('Invalid command. Type ? for help.\n')
 
+def incomplete():
+    print('Incomplete command. Type ? for help')
+
 def no_site():
     print('select a site first.\n')
 
 
 def main():
-    ui = Unifi('unifi.biztec.us', 'api_user', 'Emerson123!')
-
+    host = 'unifi.biztec.us'
+    print('login --')
+    user = input('\tUsername: ')
+    pwd = getpass('\tPassword: ')
+    ui = Unifi(host, user, pwd)
     ui.login()
-    ui.get_controller_name()
-    ui.get_sites()
-
+    try:
+        ui.get_controller_name()
+    except:
+        print('no controller')
+    try:
+        ui.get_sites()
+    except:
+        print('no sites')
     while(True):
 
         command = input('> ').split(' ')
@@ -58,7 +70,15 @@ def main():
         if command[0] == '':
             continue
 
-        if command[0] == 'show':
+        if command[0] == 'login':
+            host = 'unifi.biztec.us'
+            #host = input('hostname: ')
+            user = input('username: ')
+            pwd = getpass()
+            ui = Unifi(host, user, pwd)
+            ui.get_sites()
+
+        elif command[0] == 'show':
             ''' SHOW DIRECTIVE '''
 
             if command[1] == 'sites':
@@ -104,11 +124,15 @@ def main():
 
 
             elif command[1] == 'device':
-                ''' SELECT DEVICE BY NUMBER '''
-                if size != 3:
+                ''' SELECT DEVICE BY TUI OR NUMBER '''
+
+                if size == 2:
+                    ui.select_device()
+                elif size == 3:
+                    ui.select_device(num=command[2])
+                else:
                     wrong()
                     continue
-                ui.select_device(num=command[2])
 
             else:
                 wrong()
@@ -120,10 +144,29 @@ def main():
                 wrong()
                 continue
 
+            if command[1] == 'device':
+                ''' GET DEVICE PROPERTIES '''
+                if size >= 3:
+
+                    if command[2] == 'info':
+                        ui._active_device.display()
+
+                else:
+                    incomplete()
+                    continue
+
             if command[1] == 'wifi':
-                print(ui.get_wifi())
+                wrong() if size > 2 else ui.get_wifi()
+
             if command[1] == 'topology':
-                print(ui.get_topology())
+                wrong() if size > 2 else ui.get_topology()
+
+        elif command[0] == 'set':
+            ''' SET DIRECTIVE '''
+            if size == 1:
+                wrong()
+                continue
+
 
 
         elif command[0] in ['help', '?']:

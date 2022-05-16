@@ -36,7 +36,9 @@ class UnifiAPI:
                 print(response['meta']['msg'])
             return response['data']
         else:
-            print('{}: {}: {}: {}'.format(resp.status_code, resp.reason, resp.text, resp.request.url))
+            response = resp.json()
+            return response['meta']['msg']
+            print('API CALL FAILED TO: {}\nHTTP Status Code: {}\nReturn Msg: {}\n'.format(resp.request.url, resp.status_code,  resp.text))
 
     def v2_call(self):
         controller = self.controller

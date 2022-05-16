@@ -5,7 +5,7 @@ import json
 
 class Unifi:
 
-    def __init__(self, host, api_user, api_key, port=8443):
+    def __init__(self, host='', api_user='', api_key='', port=8443):
         self.controller = Controller(host, api_user, api_key, port)
         self.session = requests.Session()
         self._active_site = None
@@ -42,7 +42,7 @@ class Unifi:
     '''
     def select_site(self, num=-1):
         if num == -1:
-            
+
             self.controller.print_sites()
             waiting = 1
             while(waiting):
@@ -60,14 +60,14 @@ class Unifi:
                 if int(num) == site.num:
                     self._active_site = site
                     self.get_devices()
-            
+
 
     def select_device(self, num=-1):
+        if not self._active_site:
+            print("Please select a site first.")
+            return
         if num==-1:
-            if not self._active_site:
-                print("Please select a site first.")
-                return
-            elif not self._active_site.devices:
+            if not self._active_site.devices:
                 print("There are no devices to choose from. ")
                 return
             else:
@@ -91,14 +91,17 @@ class Unifi:
         CALLS TO LOGIN/LOGOUT
     '''
     def login(self):
-        print('Called Login')
+        print('Trying login...')
         login_response = UnifiAPI(self, 'login', json_dict={'username':self.controller.api_user,'password':self.controller.api_key})()
-        print(login_response)
+        if login_response == 'api.err.Invalid':
+            print('Login unsuccessful. Please try again')
+            print(login_response)
+
 
     def logout(self):
         print('Called Logout')
         logout_response = UnifiAPI(self, 'logout', json_dict={'doesnt matter':'garbage'})()
-        #print(logout_response)
+        print(logout_response)
 
 
     '''
@@ -144,7 +147,6 @@ class Unifi:
 
 
     def get_wifi(self):
-        #print('Getting Wifi Info for {site}'.format(site=self._active_site.short_name))
         wifis = UnifiAPI(self, '/v2/api/site/{site}/wlan/enriched-configuration'.format(site=self._active_site.short_name)).v2_call()
         count = 1
         for wifi in wifis:

@@ -16,7 +16,7 @@ class Device:
             return self.name
 
     def display(self):
-        print(str(self.num) + ' --\n\t' + 'Name: ' + self.name + '\n\tMac:' + self.mac + '\n\tType: ' + self.type)
+        print(str(self.num) + ' --\n\t' + 'Name: ' + self.name + '\n\tMac: ' + self.mac + '\n\tType: ' + self.type)
 
     def get_site_id(self):
         return self.site.site_id

@@ -33,7 +33,7 @@ def main():
         os.system('clear')
         print_menu(ui)
         print_selections(ui)
-        
+
         option = ''
         try:
             option = int(input('Make a selection: '))
