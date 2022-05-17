@@ -47,6 +47,6 @@ class Device:
             try:
                 return 'port #' + str(self.props[prop]['port_idx']) + ' to ' + self.props[prop]['uplink_device_name'] + ' [' + self.props[prop]['uplink_mac'] + '] on port #' + str(self.props[prop]['uplink_remote_port'])
             except:
-                return 'port #' + str(self.props[prop]['port_idx']) + ' (not uplinked to a unifi device)'
+                return str(self)
         else:
             return str(prop) + ': ' + str(self.props[prop])

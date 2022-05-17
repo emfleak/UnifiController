@@ -14,13 +14,16 @@ class Controller:
         return 'Controller\n\tHost: {host}:{port}\n\tUser: {api_user}\n\tKey: {api_key}'.format(host=self.host,port=self.port,api_user=self.api_user,api_key=self.api_key)
 
     def add_to_sites(self, sites):
-        if self.sites == []:
-            num = 0
-        else:
-            print ('Already Got Sites, skipping')
-            return
+        num = 0
         for site in sites:
-            self.sites.append(Site(site['desc'], site['_id'], site['name'], num=num))
+            exists = 0
+            for existing in self.sites:
+                if site['name'] == existing.name:
+                    print('Already got ' + site['name'])
+                    exists = 1
+
+            if not exists:
+                self.sites.append(Site(site['desc'], site['_id'], site['name'], num=num))
             num+=1
 
     def print_sites(self):

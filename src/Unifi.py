@@ -145,10 +145,18 @@ class Unifi:
         controller_info = UnifiAPI(self, 'self')()
         print(json.dumps(controller_info, indent=4))
 
-    def get_device_info(self):
-        ''' Gets additional properties about active_device '''
-        props = UnifiAPI(self, )
-        pass
+    def get_vlans(self):
+        print('Getting VLANs for {site}'.format(site=self._active_site.name))
+        networks = UnifiAPI(self, '/api/s/{site}/rest/networkconf'.format(site=self._active_site.short_name))()
+        ##print(json.dumps(network_conf, indent=4))
+        vlans = []
+
+        for network in networks:
+            if network['purpose'] == 'vlan-only':
+                vlans.append({'name':network['name'], 'vlan-id':network['vlan']})
+        return vlans
+
+
 
     def get_topology(self):
         print('Getting {site} topology: '.format(site=self._active_site.name))
@@ -205,6 +213,32 @@ class Unifi:
             "cmd":"unset-locate"
             }
         UnifiAPI(self, endpoint, json_dict=json_dict)()
+
+    # COMMANDS THAT DO DAMAGE
+    def delete_site(self):
+        while(True):
+            confirm = input('Are you sure you want to delete {site}?(Y/n) '.format(site=self._active_site.name))
+            if confirm.lower() in ['y','yes']:
+                json_dict = {'cmd':'delete-site','site':self._active_site.site_id}
+                deleted = UnifiAPI(self, '/api/s/{site}/cmd/sitemgr'.format(site=self._active_site.short_name), json_dict=json_dict)()
+                print(deleted)
+
+                print('Refreshing sites....May lose some details')
+                self.controller.sites = []
+                self.get_sites()
+                return
+            elif confirm.lower() in ['n','no']:
+                print('Cancelled. No changes made.')
+                input('Press [enter] to continue.')
+                return
+
+    def add_site(self, site_name):
+        json_dict = {'desc':site_name, 'cmd':'add-site'}
+        response = UnifiAPI(self, '/api/s/default/cmd/sitemgr', json_dict=json_dict)()
+        print('Refreshing sites....May lose some details')
+        self.controller.sites = []
+        self.get_sites()
+
 
     # START SSH METHODS
     def find_site_by_mac(self, mac):

@@ -26,6 +26,7 @@ class UnifiAPI:
         controller = self.controller
         sesh = self.session
         method = "POST" if self.json_dict else "GET"
+        print(method)
         req  = requests.Request(method, self.build_url(), json=self.json_dict)
         resp = sesh.send(sesh.prepare_request(req), verify=False)
 
