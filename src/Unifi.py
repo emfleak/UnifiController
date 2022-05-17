@@ -50,7 +50,7 @@ class Unifi:
 
     @active_device.setter
     def active_device(self, device):
-        self.active_device = device
+        self._active_device = device
 
     '''
         Meant to set active_site and active_device during runtime
@@ -131,7 +131,7 @@ class Unifi:
         self.controller.add_to_sites(UnifiAPI(self, 'self/sites')())
 
     def get_devices(self):
-        print('Getting Devices in [{site}]'.format(site=self._active_site))
+        #print('Getting Devices in [{site}]'.format(site=self._active_site))
         devices = UnifiAPI(self, '/v2/api/site/{site}/device'.format(site=self._active_site.short_name)).v2_call()['network_devices']
         self._active_site.devices = devices
 
@@ -165,6 +165,9 @@ class Unifi:
                     print ('Device: ' + k['name'], '-- Uplink to port #' + str(device['uplinkPortNumber']), 'on', device['uplinkMac'])
                     print('-'*20)
 
+    def get_switch_stats(self):
+        switch_stats = UnifiAPI(self, '/api/s/{site}/stat/widget/switch-stats'.format(site=self._active_site.short_name))()
+        return switch_stats
 
     def get_wifi(self):
         wifis = UnifiAPI(self, '/v2/api/site/{site}/wlan/enriched-configuration'.format(site=self._active_site.short_name)).v2_call()

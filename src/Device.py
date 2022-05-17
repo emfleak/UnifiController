@@ -26,7 +26,7 @@ class Device:
                     try:
                         print('\tuplink: port #' + str(self.props[prop]['port_idx']) + ' to ' + self.props[prop]['uplink_device_name'] + ' [' + self.props[prop]['uplink_mac'] + '] on port #' + str(self.props[prop]['uplink_remote_port']))
                     except:
-                        print('\tuplink: port #' + str(self.props[prop]['port_idx']) + ' (not uplinked to a unifi device)')
+                        pass
                 else:
                     print('\t' + str(prop) + ': ' + str(self.props[prop]))
 
