@@ -38,7 +38,7 @@ def print_selections(ui):
 def print_selections_detailed(ui):
     print('SITE\t --', ui.active_site, '\nDEVICE\t --', ui.active_device)
     for prop in ui.active_device.props.keys():
-        if prop in ['mac','type','model','ip', 'version']:
+        if prop in ['mac','type','model','ip', 'version', 'state']:
             if prop == 'version':
                 print(' |'+str(prop).upper() + '--', str(ui.active_device.props[prop]))
             else:
@@ -121,6 +121,7 @@ def main():
                     api_option = int(input('Make a selection: '))
                 except:
                     print('Wrong input. Please enter a number.')
+                    continue
                 if api_option == 1:
                     if ui.active_device != 'No Device Selected':
                         ui.set_locate()
