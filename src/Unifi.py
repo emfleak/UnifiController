@@ -257,7 +257,7 @@ class Unifi:
         # Checks output of initial search for the MAC address. If controller returns null, then nothing was found.
         if str(output[2]) == "null":
             print("Device not found")
-            wait()
+            
             return 1
         try:
             k = ast.literal_eval(output[2]) #converts db query result into a literal python dictionary type
