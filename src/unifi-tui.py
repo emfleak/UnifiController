@@ -15,12 +15,16 @@ menu_options = {
     8 : 'Controller Queries',
     9 : 'Switch Stats',
     10 : 'Get Site VLANs',
+    11 : 'Show SSH Creds',
+    12 : 'Adopt Selected Device',
+    13 : 'Show Adoptable Devices',
     0 : 'Exit'
 }
 
 api_options = {
     1 : 'Start blinking',
     2 : 'Delete site',
+    3 : 'Delete device',
     0 : 'Back to Main Menu'
 }
 
@@ -29,6 +33,7 @@ controller_queries = {
     2 : 'Switches using more than 90% of their PoE capacity',
     3 : 'Offline Devices w/ Total WAP & Switch Count',
     4 : 'Sites with no devices',
+    5 : 'Offline Devices',
     0 : 'Back to Main Menu'
 }
 
@@ -38,7 +43,7 @@ def print_selections(ui):
 def print_selections_detailed(ui):
     print('SITE\t --', ui.active_site, '\nDEVICE\t --', ui.active_device)
     for prop in ui.active_device.props.keys():
-        if prop in ['mac','type','model','ip', 'version', 'state']:
+        if prop in ['mac','type','model','ip', 'version', 'state', 'adopted']:
             if prop == 'version':
                 print(' |'+str(prop).upper() + '--', str(ui.active_device.props[prop]))
             else:
@@ -132,6 +137,9 @@ def main():
                         wait()
                 elif api_option == 2:
                     ui.delete_site()
+                elif api_option == 3:
+                    ui.delete_device()
+                    wait()
                 elif api_option == 0:
                     in_api_menu = 0
 
@@ -251,7 +259,27 @@ def main():
                         print(site)
                     wait()
 
-
+                elif query_option == 5:
+                    ''' Sites with devices offline '''
+                    result = {}
+                    for site in ui.controller.sites:
+                        count = 0
+                        found = False
+                        ui.select_site(site.num)
+                        offline_devices = []
+                        for device in site.devices:
+                            if device.props['state'] == 0:
+                                offline_devices.append(device)
+                                found = True
+                        if found:
+                            print(site.name,':')
+                            for k in offline_devices:
+                                print('\t',k,'['+k.mac+']')
+                            print()
+                    # for k in result.keys():
+                    #     for j in result[k]:
+                    #         print(k, '--\n\t', j.name, '\n\t', j.mac)
+                    wait()
                 elif query_option == 0:
                     in_controller_menu = 0
 
@@ -276,6 +304,21 @@ def main():
                 print(vlan['vlan-id'] + ' -- ' + vlan['name'])
                 print()
             wait()
+
+        elif option == 11:
+            creds = ui.get_ssh_info()
+            print('username: ' + str(creds[0]) + '\npassword: ' + str(creds[1]))
+            wait()
+
+        elif option == 12:
+            print(ui.adopt_device())
+            wait()
+
+        elif option == 13:
+            ui.get_devices_for_adoption()
+
+        elif option == 14:
+            ui.refresh()
 
         elif option == 0:
             ui.logout()

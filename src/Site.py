@@ -3,11 +3,12 @@ from Device import Device
 
 class Site:
 
-    def __init__(self, name='', site_id='', short_name='', num=0):
+    def __init__(self, name='', site_id='', short_name='', num=0, props={}):
         self.num = num
         self.name = name
         self.site_id = site_id
         self.short_name = short_name
+        self.props = props
         self._devices = []
         self._wifis = []
 
@@ -17,7 +18,9 @@ class Site:
 
     @devices.setter
     def devices(self, devices):
-        if self.devices == []:
+        if len(devices)!=len(self._devices):
+            self._devices = []
+        if self._devices == []:
             num = 0
         else:
             print ('Already Got Devices, skipping')
@@ -38,7 +41,7 @@ class Site:
 
     @wifis.setter
     def wifis(self, wifis):
-        self.wifis = wifis
+        self._wifis = wifis
 
     def __str__(self):
         return self.name

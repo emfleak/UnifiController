@@ -23,7 +23,12 @@ class Controller:
                     exists = 1
 
             if not exists:
-                self.sites.append(Site(site['desc'], site['_id'], site['name'], num=num))
+                props = {}
+                for prop in site:
+                    props.update({prop:site[prop]})
+
+                    #self.sites[num] = Site(site['desc'], site['_id'], site['name'], num=num)
+                self.sites.append(Site(site['desc'], site['_id'], site['name'], num=num, props=props))
             num+=1
 
     def print_sites(self):

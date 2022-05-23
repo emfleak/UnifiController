@@ -21,7 +21,7 @@ class Device:
     def display(self):
         print(str(self.num) + ' --')
         for prop in self.props:
-            if prop in ['name', 'mac', 'type', 'model', 'version', 'ip',  'uplink', 'uptime', 'model']:
+            if prop in ['name', 'mac', 'type', 'model', 'version', 'ip',  'uplink', 'uptime', 'model', 'adopted']:
                 if prop in ['uplink']:
                     try:
                         print('\tuplink: port #' + str(self.props[prop]['port_idx']) + ' to ' + self.props[prop]['uplink_device_name'] + ' [' + self.props[prop]['uplink_mac'] + '] on port #' + str(self.props[prop]['uplink_remote_port']))
@@ -31,7 +31,7 @@ class Device:
                     print('\t' + str(prop) + ': ' + str(self.props[prop]))
 
     def display_short(self):
-        print(str(self.num) + ' --\tName: ' + self.name + '\n\tMac: ' + self.mac + '\n\tType: ' + self.type.upper() + '\n\tModel: ' + self.props['model'])
+        print(str(self.num) + ' --\tName: ' + self.name + '\n\tMac: ' + self.mac + '\n\tType: ' + self.type.upper() + '\n\tModel: ' + self.props['model'] + '\n\tAdopted: ' + str(self.props['adopted']))
 
     def get_site_id(self):
         return self.site.site_id

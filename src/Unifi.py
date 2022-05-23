@@ -1,4 +1,5 @@
 from Controller import Controller
+from Device import Device
 from UnifiAPI import UnifiAPI
 import requests
 import json
@@ -78,6 +79,7 @@ class Unifi:
 
 
     def select_device(self, num=-1):
+        self._active_device = None
         if not self._active_site:
             print("Please select a site first.")
             return
@@ -86,6 +88,7 @@ class Unifi:
                 print("There are no devices to choose from. ")
                 return
             else:
+                self.select_site(self._active_site.num)
                 self._active_site.print_devices()
                 waiting = 1
                 while (waiting):
@@ -101,6 +104,15 @@ class Unifi:
             for device in self._active_site.devices:
                     if int(num) == device.num:
                         self._active_device = device
+
+    def refresh(self):
+        snum = self._active_site.num if self._active_site else 0
+        dnum = self._active_device.num if self._active_device else 0
+        self.get_devices()
+        for device in self._active_site.devices:
+            if device.mac == self._active_device.mac:
+                self._active_device = device
+                return
 
     '''
         CALLS TO LOGIN/LOGOUT
@@ -127,11 +139,10 @@ class Unifi:
         self.controller.name = UnifiAPI(self, '/api/s/default/stat/sysinfo')()[0]['name']
 
     def get_sites(self):
-        print('Getting Sites')
         self.controller.add_to_sites(UnifiAPI(self, 'self/sites')())
 
     def get_devices(self):
-        #print('Getting Devices in [{site}]'.format(site=self._active_site))
+        self._active_site.device = []
         devices = UnifiAPI(self, '/v2/api/site/{site}/device'.format(site=self._active_site.short_name)).v2_call()['network_devices']
         self._active_site.devices = devices
 
@@ -156,7 +167,18 @@ class Unifi:
                 vlans.append({'name':network['name'], 'vlan-id':network['vlan']})
         return vlans
 
-
+    def get_ssh_info(self):
+        ssh_user = ''
+        ssh_pass = ''
+        endpoint = '/api/s/{site}/get/setting'.format(site=self._active_site.short_name)
+        settings = UnifiAPI(self, endpoint)()
+        #print(settings)
+        for k in settings:
+            #print(k)
+            if k['key'] == 'mgmt':
+                ssh_user = k['x_ssh_username']
+                ssh_pass = k['x_ssh_password']
+        return (ssh_user, ssh_pass)
 
     def get_topology(self):
         print('Getting {site} topology: '.format(site=self._active_site.name))
@@ -180,17 +202,47 @@ class Unifi:
     def get_wifi(self):
         wifis = UnifiAPI(self, '/v2/api/site/{site}/wlan/enriched-configuration'.format(site=self._active_site.short_name)).v2_call()
         count = 1
+        return_string = ''
+        self.active_site.wifis = wifis
         for wifi in wifis:
             if wifi['configuration']['security'] == 'open':
-                print(count, '--\tSSID:', wifi['configuration']['name'], '\n\tPwd: [No Password]' '\n')
+                print(count, '--\tSSID:', wifi['configuration']['name'], '\n\tPwd: [No Password]\n')
+                return_string+= 'SSID: ' + wifi['configuration']['name'] + '\nPwd: [No Password]\n'
             else:
                 print(count, '--\tSSID:', wifi['configuration']['name'], '\n\tPwd:', wifi['configuration']['x_passphrase'], '\n')
+                return_string+= 'SSID: ' + wifi['configuration']['name'] + '\nPwd: ' + wifi['configuration']['x_passphrase'] + '\n'
             count+=1
+            return_string+='\n'
+        return return_string
 
 
     '''
         CALLS THAT SEND COMMANDS TO ACTIVE DEVICE
     '''
+
+    def get_devices_for_adoption(self):
+        endpoint = '/api/s/default/stat/device'
+        devices = UnifiAPI(self, endpoint)()
+        adoptable_devices = []
+        for device in devices:
+            if device['adopted'] == False:
+                adoptable_devices.append(dict(device))
+        self._active_site.add_to_devices(adoptable_devices)
+
+    def adopt_device(self):
+        if self._active_device.props['adopted']:
+            print(self._active_device.name + '[{mac}]'.format(mac=self._active_device.mac) + ' is already adopted.')
+            return
+        endpoint = '/api/s/{site}/cmd/devmgr'.format(site=self._active_site.short_name)
+        print(endpoint)
+        json_dict = {
+            'cmd':'adopt',
+            'mac':self._active_device.mac
+        }
+        response = UnifiAPI(self, endpoint, json_dict=json_dict)()
+        print(response)
+        return response
+
     def set_locate(self):
         print('Locating Device...')
         if not self._active_device:
@@ -239,6 +291,26 @@ class Unifi:
         self.controller.sites = []
         self.get_sites()
 
+    def delete_device(self):
+        while(True):
+            confirm = input('Are you sure you want to delete {device} [{mac}]?(Y/n) '.format(device=self._active_device.name,mac=self._active_device.mac))
+            if confirm.lower() in ['y','yes']:
+                endpoint = '/api/s/{site}/cmd/sitemgr'.format(site=self._active_site.short_name)
+                json_dict = {
+                    'cmd':'delete-device',
+                    'macs':[self._active_device.mac]
+                }
+                response = UnifiAPI(self, endpoint, json_dict=json_dict)()
+                print(response)
+                print('Refreshing sites....May lose some details')
+                self.active_site.devices = []
+                self.get_devices()
+                return response
+            elif confirm.lower() in ['n','no']:
+                print('Cancelled. No changes made.')
+                input('Press [enter] to continue.')
+                return
+
 
     # START SSH METHODS
     def find_site_by_mac(self, mac):
@@ -257,7 +329,7 @@ class Unifi:
         # Checks output of initial search for the MAC address. If controller returns null, then nothing was found.
         if str(output[2]) == "null":
             print("Device not found")
-            
+
             return 1
         try:
             k = ast.literal_eval(output[2]) #converts db query result into a literal python dictionary type
