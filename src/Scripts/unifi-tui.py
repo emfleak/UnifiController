@@ -1,4 +1,4 @@
-from Unifi import Unifi
+from Unifi.Unifi import Unifi
 import json
 import csv
 import os

@@ -224,8 +224,7 @@ class SiteSummary(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
         self.controller = controller
-        self.canvas = tk.Canvas(self, bg='red').pack(anchor='center', expand=True, fill='x')
-        self.back_button = tk.Button(self.canvas, text='Back', command=self.handle_back_btn).pack(anchor='se')
+        self.back_button = tk.Button(self, text='Back', command=self.handle_back_btn).grid(row=4, column=4)
 
         #self.canvas = tk.Canvas(self).pack()
         #self.label1 = tk.Label(self, text='Is this working?').pack()
@@ -233,7 +232,7 @@ class SiteSummary(tk.Frame):
     def populate_site_summary(self):
         please_wait_text = tk.StringVar()
         please_wait_text.set('Loading offline device summary, please wait...')
-        please_wait = tk.Label(self.canvas, textvariable=please_wait_text).pack()
+        please_wait = tk.Label(self, textvariable=please_wait_text).grid(row=0, column=2)
         increment = 100/len(self.controller.ui.controller.sites)
         progress = 0
         summary = {}
@@ -255,9 +254,18 @@ class SiteSummary(tk.Frame):
 
         please_wait_text.set('')
 
+        row = 0
+        column = 0
         for site in summary.keys():
 
-            tk.Label(tk.LabelFrame(self.canvas, text=site.name, bg='purple').pack(anchor='w'), text=site.name+' has '+str(summary[site])+ ' devices offline.').pack(anchor='nw')
+            tk.Label(self, text=site.name+' has '+str(summary[site])+ ' devices offline.').grid(row=row, column=column)
+            row+=1
+
+            if row > 20:
+                column+=1
+                row=0
+
+
 
     def handle_back_btn(self):
         self.controller.show_frame(MainPage)
