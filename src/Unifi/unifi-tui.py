@@ -323,10 +323,10 @@ def main():
             if command=='enable': 
                 username = input("username: ")
                 password = input("password: ")
-                ui.enable_snmp(command, username, password)
+                ui.snmp(command, username, password)
                 wait()
             else if command=='disable':
-                ui.snmp(command))
+                ui.snmp(command)
                 wait()
 
         elif option == 0:
