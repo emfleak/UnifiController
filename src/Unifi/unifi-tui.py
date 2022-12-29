@@ -331,7 +331,6 @@ def main():
                 ui.snmp(command)
                 wait()
                 val = 1
-            return val
 
         elif option == 0:
             ui.logout()
