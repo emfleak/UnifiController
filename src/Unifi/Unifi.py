@@ -266,6 +266,13 @@ class Unifi:
             }
         UnifiAPI(self, endpoint, json_dict=json_dict)()
 
+    # COMMANDS THAT SETUP SNMP
+    def enable_snmp(self, username, password):
+        print('Enabling SNMP settings...')
+        endpoint = '/api/s/{site}/cmd/devmgr'
+        
+
+
     # COMMANDS THAT DO DAMAGE
     def delete_site(self):
         while(True):
