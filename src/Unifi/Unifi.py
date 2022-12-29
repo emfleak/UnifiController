@@ -67,7 +67,7 @@ class Unifi:
                     waiting = 0
                     self._active_device = None
                 except:
-                    pass
+                    print("unable to select a site")
             for site in self.controller.sites:
                 if num == site.num:
                     self._active_site = site
@@ -269,8 +269,18 @@ class Unifi:
     # COMMANDS THAT SETUP SNMP
     def enable_snmp(self, username, password):
         print('Enabling SNMP settings...')
-        endpoint = '/api/s/{site}/cmd/devmgr'
-        
+        endpoint = '/api/s/{site}/set/setting/snmp'.format(site=self._active_site.short_name)
+        json_dict = {
+            "enabled":"false"
+            "enabledV3":"true"
+            "site_id":"{site_id}".format(site_id=self._active_site._id)
+            "key":"snmp"
+            "username":username
+            "x_password":password
+        }
+        response = UnifiAPI(self, endpoint, json_dict=json_dict)()
+        print(response)
+        return response
 
 
     # COMMANDS THAT DO DAMAGE
