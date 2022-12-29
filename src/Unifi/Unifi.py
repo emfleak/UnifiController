@@ -271,11 +271,11 @@ class Unifi:
         print('Enabling SNMP settings...')
         endpoint = '/api/s/{site}/set/setting/snmp'.format(site=self._active_site.short_name)
         json_dict = {
-            "enabled":"false"
-            "enabledV3":"true"
-            "site_id":"{site_id}".format(site_id=self._active_site._id)
-            "key":"snmp"
-            "username":username
+            "enabled":"false",
+            "enabledV3":"true",
+            "site_id":"{site_id}".format(site_id=self._active_site._id),
+            "key":"snmp",
+            "username":username,
             "x_password":password
         }
         response = UnifiAPI(self, endpoint, json_dict=json_dict)()
