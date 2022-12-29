@@ -18,7 +18,7 @@ menu_options = {
     11 : 'Show SSH Creds',
     12 : 'Adopt Selected Device',
     13 : 'Show Adoptable Devices',
-    14 : 'Enable SNMP'
+    14 : 'Enable SNMP',
     0 : 'Exit'
 }
 
