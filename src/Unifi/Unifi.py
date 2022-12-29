@@ -273,7 +273,7 @@ class Unifi:
             print('Enabling SNMP settings...')
             json_dict = {
                 "enabled":"false",
-                "enabledV3":"true"
+                "enabledV3":"true",
                 "key":"snmp",
                 "username":username,
                 "x_password":password
