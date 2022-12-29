@@ -319,15 +319,19 @@ def main():
             ui.get_devices_for_adoption()
 
         elif option == 14:
+            val = -1
             command = input('enable/disable: ').lower()
             if command=='enable': 
                 username = input("username: ")
                 password = input("password: ")
                 ui.snmp(command, username, password)
                 wait()
-            else if command=='disable':
+                val = 1
+            elif command=='disable':
                 ui.snmp(command)
                 wait()
+                val = 1
+            return val
 
         elif option == 0:
             ui.logout()
