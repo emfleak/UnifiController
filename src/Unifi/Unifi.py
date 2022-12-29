@@ -282,7 +282,7 @@ class Unifi:
             response = UnifiAPI(self, endpoint, json_dict=json_dict)()
             print(response)
             return response
-        else if command=='disable':
+        elif command=='disable':
             print('Disabling SNMP settings...')
             json_dict = {
                 "enabled":"false",
