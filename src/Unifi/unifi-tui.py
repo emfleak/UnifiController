@@ -18,6 +18,7 @@ menu_options = {
     11 : 'Show SSH Creds',
     12 : 'Adopt Selected Device',
     13 : 'Show Adoptable Devices',
+    14 : 'Enable SNMP'
     0 : 'Exit'
 }
 
@@ -318,7 +319,15 @@ def main():
             ui.get_devices_for_adoption()
 
         elif option == 14:
-            ui.refresh()
+            command = input('enable/disable: ').lower()
+            if command=='enable': 
+                username = input("username: ")
+                password = input("password: ")
+                ui.enable_snmp(command, username, password)
+                wait()
+            else if command=='disable':
+                ui.snmp(command))
+                wait()
 
         elif option == 0:
             ui.logout()

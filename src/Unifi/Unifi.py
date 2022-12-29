@@ -267,21 +267,34 @@ class Unifi:
         UnifiAPI(self, endpoint, json_dict=json_dict)()
 
     # COMMANDS THAT SETUP SNMP
-    def enable_snmp(self, username, password):
-        print('Enabling SNMP settings...')
+    def snmp(self, command, username=None, password=None):
         endpoint = '/api/s/{site}/set/setting/snmp'.format(site=self._active_site.short_name)
-        json_dict = {
-            "enabled":"false",
-            "enabledV3":"true",
-            "site_id":"{site_id}".format(site_id=self._active_site._id),
-            "key":"snmp",
-            "username":username,
-            "x_password":password
-        }
-        response = UnifiAPI(self, endpoint, json_dict=json_dict)()
-        print(response)
-        return response
-
+        if command=='enable':
+            print('Enabling SNMP settings...')
+            json_dict = {
+                "enabled":"false",
+                "enabledV3":"true",
+                "site_id":"{site_id}".format(site_id=self._active_site._id),
+                "key":"snmp",
+                "username":username,
+                "x_password":password
+            }
+            response = UnifiAPI(self, endpoint, json_dict=json_dict)()
+            print(response)
+            return response
+        else if command=='disable':
+            print('Disabling SNMP settings...')
+            json_dict = {
+                "enabled":"false",
+                "enabledV3":"false",
+                "site_id":"{site_id}".format(site_id=self._active_site._id),
+                "key":"snmp"
+            }
+            response = UnifiAPI(self, endpoint, json_dict=json_dict)()
+            print(response)
+            return response
+        else 
+            return -1
 
     # COMMANDS THAT DO DAMAGE
     def delete_site(self):
