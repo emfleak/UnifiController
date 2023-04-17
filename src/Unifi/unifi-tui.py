@@ -81,7 +81,7 @@ def print_options():
     pass
 
 def main():
-    ui = Unifi('unifi.biztec.us', 'api_user', 'Emerson123!', 'ubuntu', '/Users/evan/.ssh/Biztec-UniFi.pem')
+    ui = Unifi('unifi.biztec.us', 'api_user', 'api_password', 'ssh_username', 'path_to_ssh_key')
 
     ui.login()
     ui.get_controller_name()
